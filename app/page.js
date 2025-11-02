@@ -9,13 +9,25 @@ export default function HomePage() {
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!username.trim()) {
       setError("Please enter a username");
       return;
     }
-    router.push(`/chat?user=${encodeURIComponent(username)}`);
+
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username }),
+    });
+
+    if (res.ok) {
+      router.push(`/chat?user=${encodeURIComponent(username)}`);
+    } else {
+      setError("User not found. Please register first.");
+    }
   };
+
 
   return (
     <div className="page">

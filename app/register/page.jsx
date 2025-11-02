@@ -7,18 +7,26 @@ import "./register.css";
 export default function RegisterPage() {
     const router = useRouter();
     const [username, setUsername] = useState("");
+    const [error, setError] = useState("");
 
-    const handleRegister = () => {
+    const handleRegister = async () => {
         if (!username.trim()) {
-            alert("Please enter a username");
+            setError("Please enter a username");
             return;
         }
+        const res = await fetch("/api/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username }),
+        });
 
-        // Show popup
-        alert(`New user "${username}" registered`);
-
-        // Redirect to Home
-        router.push("/");
+        if (res.ok) {
+            alert(`New user "${username}" registered`);
+            router.push("/");
+        } else {
+            const data = await res.json();
+            setError(data.message || "Registration failed");
+        }
     };
 
     return (
@@ -33,6 +41,8 @@ export default function RegisterPage() {
                     onChange={(e) => setUsername(e.target.value)}
                     className="input"
                 />
+
+                {error && <p className="error">{error}</p>}
 
                 <button onClick={handleRegister} className="button">
                     Register

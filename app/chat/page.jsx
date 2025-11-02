@@ -24,16 +24,16 @@ export default function ChatPage() {
 
     // Initialize socket once
     useEffect(() => {
-        socketRef.current = io(); // default path /socket.io
+        socketRef.current = io();
 
         socketRef.current.on("connect", () => {
             if (username) socketRef.current.emit("register-user", username);
         });
-
         socketRef.current.on("joined", (data) => {
-            setChat([{ from: "system", text: `Connected with ${data.with}` }]);
+            setChat((prev) => [...prev, { from: "system", text: `Connected with ${data.with}` }]);
             setConnected(true);
         });
+
 
         socketRef.current.on("receive-message", (data) => {
             if (
@@ -44,16 +44,36 @@ export default function ChatPage() {
             }
         });
 
+        // ✅ Listen for server-side errors
+        socketRef.current.on("error-message", (data) => {
+            alert(data.text);
+            setConnected(false); // ✅ lock state if error
+        });
+
         return () => {
             socketRef.current && socketRef.current.disconnect();
         };
     }, [username, recipient]);
 
-    const connect = () => {
+    const connect = async () => {
         if (!recipient.trim()) {
             alert("Enter a recipient username");
             return;
         }
+
+        // Fetch history from MongoDB
+        const res = await fetch(
+            `/api/message?user1=${encodeURIComponent(username)}&user2=${encodeURIComponent(recipient)}`
+        );
+        if (res.ok) {
+            const history = await res.json();
+            setChat(history.map((m) => ({ from: m.from, text: m.text })));
+        } else {
+            const data = await res.json();
+            alert(data.message || "Could not load history");
+            return;
+        }
+
         socketRef.current.emit("join", { from: username, to: recipient });
     };
 
@@ -63,13 +83,26 @@ export default function ChatPage() {
         setChat([]);
     };
 
-    const sendMessage = () => {
+    const sendMessage = async () => {
         if (!connected || !message.trim()) return;
         const msg = { from: username, to: recipient, text: message };
-        socketRef.current.emit("send-message", msg);
-        setMessage("");
-    };
 
+        // Save to MongoDB first
+        const res = await fetch("/api/message", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(msg),
+        });
+
+        if (res.ok) {
+            // ✅ Only emit real-time if DB insert succeeded
+            socketRef.current.emit("send-message", msg);
+            setMessage("");
+        } else {
+            const data = await res.json();
+            alert(data.message || "Message failed to send");
+        }
+    };
 
     return (
         <div className="chat-page">
@@ -92,13 +125,32 @@ export default function ChatPage() {
                         />
                         <button onClick={connect} className="connect-button">Connect</button>
                         <button onClick={() => setChat([])} className="refresh-button">Clear</button>
+                        <button
+                            onClick={async () => {
+                                const res = await fetch("/api/deleteMessages", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ user1: username, user2: recipient }),
+                                });
+                                if (res.ok) {
+                                    alert("Messages deleted");
+                                    setChat([]);
+                                } else {
+                                    const data = await res.json();
+                                    alert(data.message || "Failed to delete messages");
+                                }
+                            }}
+                            className="delete-button"
+                        >
+                            Delete Chat
+                        </button>
+
                         <button onClick={disconnect} className="disconnect-button">Disconnect</button>
                     </div>
 
                     <div className="chat-window">
                         <div className="messages">
                             {chat.map((c, i) => {
-                                // If I sent it, label as "me"
                                 const label = c.from === username ? "me" : c.from;
                                 return (
                                     <div
@@ -116,7 +168,6 @@ export default function ChatPage() {
                             })}
                         </div>
 
-
                         <div className="input-row">
                             <input
                                 type="text"
@@ -124,8 +175,15 @@ export default function ChatPage() {
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
                                 className="message-input"
+                                disabled={!connected} // ✅ lock input if not connected
                             />
-                            <button onClick={sendMessage} className="send-button">Send</button>
+                            <button
+                                onClick={sendMessage}
+                                className="send-button"
+                                disabled={!connected} // ✅ lock button if not connected
+                            >
+                                Send
+                            </button>
                         </div>
                     </div>
                 </div>

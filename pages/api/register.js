@@ -1,25 +1,41 @@
-// Temporary in-memory store for registered users
-let users = [];
+// pages/api/register.js
+import { MongoClient } from "mongodb";
 
-export default function handler(req, res) {
-    if (req.method === "POST") {
-        const { username } = req.body;
+const uri = process.env.MONGODB_URI;
+let client;
+let clientPromise;
 
-        if (!username) {
-            return res.status(400).json({ message: "Username required" });
+if (!global._mongoClientPromise) {
+    client = new MongoClient(uri);
+    global._mongoClientPromise = client.connect();
+}
+clientPromise = global._mongoClientPromise;
+
+export default async function handler(req, res) {
+    try {
+        const client = await clientPromise;
+        const db = client.db("chatapp");
+        const users = db.collection("users");
+
+        if (req.method === "POST") {
+            const { username } = req.body;
+
+            if (!username || !username.trim()) {
+                return res.status(400).json({ message: "Username required" });
+            }
+
+            const existing = await users.findOne({ username });
+            if (existing) {
+                return res.status(400).json({ message: "Username already exists" });
+            }
+
+            await users.insertOne({ username, createdAt: new Date() });
+            return res.status(200).json({ message: "User registered" });
         }
 
-        if (users.includes(username)) {
-            return res.status(400).json({ message: "Username already exists" });
-        }
-
-        users.push(username);
-        return res.status(200).json({ message: "User registered", users });
+        res.status(405).json({ message: "Method not allowed" });
+    } catch (e) {
+        console.error("Register API error:", e);
+        res.status(500).json({ message: "Internal server error" });
     }
-
-    if (req.method === "GET") {
-        return res.status(200).json(users);
-    }
-
-    res.status(405).json({ message: "Method not allowed" });
 }
