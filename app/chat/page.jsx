@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import io from "socket.io-client";
 import "./chat.css";
+
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-
-export default function ChatPage() {
+function ChatPageInner() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const socketRef = useRef(null);
@@ -37,7 +37,6 @@ export default function ChatPage() {
             setConnected(true);
         });
 
-
         socketRef.current.on("receive-message", (data) => {
             if (
                 (data.from === recipient && data.to === username) ||
@@ -47,10 +46,9 @@ export default function ChatPage() {
             }
         });
 
-        // ✅ Listen for server-side errors
         socketRef.current.on("error-message", (data) => {
             alert(data.text);
-            setConnected(false); // ✅ lock state if error
+            setConnected(false);
         });
 
         return () => {
@@ -64,7 +62,6 @@ export default function ChatPage() {
             return;
         }
 
-        // Fetch history from MongoDB
         const res = await fetch(
             `/api/message?user1=${encodeURIComponent(username)}&user2=${encodeURIComponent(recipient)}`
         );
@@ -90,7 +87,6 @@ export default function ChatPage() {
         if (!connected || !message.trim()) return;
         const msg = { from: username, to: recipient, text: message };
 
-        // Save to MongoDB first
         const res = await fetch("/api/message", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -98,7 +94,6 @@ export default function ChatPage() {
         });
 
         if (res.ok) {
-            // ✅ Only emit real-time if DB insert succeeded
             socketRef.current.emit("send-message", msg);
             setMessage("");
         } else {
@@ -178,12 +173,12 @@ export default function ChatPage() {
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
                                 className="message-input"
-                                disabled={!connected} // ✅ lock input if not connected
+                                disabled={!connected}
                             />
                             <button
                                 onClick={sendMessage}
                                 className="send-button"
-                                disabled={!connected} // ✅ lock button if not connected
+                                disabled={!connected}
                             >
                                 Send
                             </button>
@@ -192,5 +187,14 @@ export default function ChatPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+// ✅ Wrap in Suspense so useSearchParams passes build
+export default function ChatPage() {
+    return (
+        <Suspense fallback={<div>Loading chat...</div>}>
+            <ChatPageInner />
+        </Suspense>
     );
 }
