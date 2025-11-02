@@ -1,0 +1,179 @@
+.chat-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: hsl(220, 20%, 95%);
+    font-family: sans-serif;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.top-bar {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.home-button {
+    background: hsl(0, 0%, 95%);
+    color: hsl(220, 15%, 20%);
+    padding: 0.5rem 1rem;
+    border: 1px solid hsl(0, 0%, 80%);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.home-button:hover {
+    background: hsl(0, 0%, 85%);
+}
+
+/* Inline username field in top bar */
+.top-username-input {
+    width: 10rem;
+    padding: 0.4rem;
+    border: 1px solid hsl(0, 0%, 75%);
+    border-radius: 6px;
+    color: hsl(220, 15%, 20%);
+    background: hsl(0, 0%, 100%);
+}
+
+.top-username-input::placeholder {
+    color: hsl(220, 10%, 60%);
+}
+
+.profile-label {
+    margin-left: 1rem;
+    font-weight: bold;
+    color: hsl(220, 20%, 20%);
+}
+
+/* Card container */
+.chat-card {
+    background: hsl(0, 0%, 100%);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px hsl(0, 0%, 0%, 0.15);
+    max-width: 650px;
+    width: 100%;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    margin: 0 auto;
+}
+
+.recipient-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.recipient-input {
+    width: 8rem;
+    padding: 0.4rem;
+    border: 1px solid hsl(0, 0%, 75%);
+    border-radius: 6px;
+    color: hsl(220, 15%, 20%);
+    background: hsl(0, 0%, 100%);
+}
+
+.recipient-input::placeholder {
+    color: hsl(220, 10%, 60%);
+}
+
+.connect-button,
+.refresh-button,
+.disconnect-button {
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: white;
+}
+
+.connect-button {
+    background: hsl(220, 80%, 55%);
+}
+
+.connect-button:hover {
+    background: hsl(220, 80%, 45%);
+}
+
+.refresh-button {
+    background: hsl(45, 90%, 55%);
+}
+
+.refresh-button:hover {
+    background: hsl(45, 90%, 45%);
+}
+
+.disconnect-button {
+    background: hsl(0, 70%, 50%);
+}
+
+.disconnect-button:hover {
+    background: hsl(0, 70%, 40%);
+}
+
+.chat-window {
+    flex: 1;
+    border: 1px solid hsl(0, 0%, 75%);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0.75rem;
+    background: hsl(0, 0%, 100%);
+    min-height: 400px;
+}
+
+.messages {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 0.75rem;
+}
+
+.message {
+    font-size: 0.95rem;
+    margin-bottom: 0.4rem;
+    color: hsl(220, 20%, 15%);
+    /* darker text */
+}
+
+.from {
+    font-weight: bold;
+    color: hsl(220, 80%, 30%);
+    /* darker blue for sender name */
+}
+
+.input-row {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.message-input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid hsl(0, 0%, 75%);
+    border-radius: 6px;
+    color: hsl(220, 15%, 20%);
+    background: hsl(0, 0%, 100%);
+}
+
+.message-input::placeholder {
+    color: hsl(220, 10%, 60%);
+}
+
+.send-button {
+    background: hsl(140, 60%, 40%);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.send-button:hover {
+    background: hsl(140, 60%, 30%);
+}
