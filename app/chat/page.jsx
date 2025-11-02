@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import io from "socket.io-client";
 import "./chat.css";
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 
 export default function ChatPage() {
