@@ -13,11 +13,23 @@ function ChatPageInner() {
     const searchParams = useSearchParams();
     const socketRef = useRef(null);
 
+    const messagesEndRef = useRef(null);
+
+
     const [username, setUsername] = useState("");
     const [recipient, setRecipient] = useState("");
     const [connected, setConnected] = useState(false);
     const [message, setMessage] = useState("");
     const [chat, setChat] = useState([]);
+
+
+    // scroll to bottom whenever chat updates
+    useEffect(() => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [chat]);
+
 
     // Get username from query param (?user=alice)
     useEffect(() => {
@@ -164,6 +176,7 @@ function ChatPageInner() {
                                     </div>
                                 );
                             })}
+                            <div ref={messagesEndRef} />
                         </div>
 
                         <div className="input-row">
