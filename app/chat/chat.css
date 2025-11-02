@@ -188,6 +188,13 @@
     /* ✅ never overflow parent */
 }
 
+.timestamp {
+    font-size: 0.75rem;
+    color: hsl(0, 0%, 50%);
+    margin-left: 8px;
+}
+
+
 .messages {
     flex: 1;
     overflow-y: auto;
@@ -200,14 +207,26 @@
     color: hsl(220, 20%, 15%);
 }
 
-.message.system {
-    color: #0070f3;
-    /* blue accent */
-    font-weight: bold;
-    text-align: center;
-    margin: 8px 0;
+.message .from {
+    font-weight: bolder;
 }
 
+.message.me .from {
+    color: hsl(210, 90%, 40%);
+    font-weight: 600;
+}
+
+
+.message.them .from {
+    color: hsl(0, 70%, 40%);
+    font-weight: 600;
+}
+
+.message.system {
+    color: hsl(260, 60%, 45%);
+    font-weight: bold;
+    text-align: center;
+}
 
 .from {
     font-weight: bold;
@@ -218,6 +237,7 @@
     display: flex;
     gap: 0.5rem;
 }
+
 
 .message-input {
     flex: 1;

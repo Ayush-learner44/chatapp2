@@ -51,7 +51,10 @@ function ChatPageInner() {
             if (username) socketRef.current.emit("register-user", username);
         });
         socketRef.current.on("joined", (data) => {
-            setChat((prev) => [...prev, { from: "system", text: `Connected with ${data.with}` }]);
+            setChat((prev) => [
+                ...prev,
+                { from: "system", text: `Connected with ${data.with}`, time: new Date().toISOString() }
+            ]);
             setConnected(true);
         });
 
@@ -60,7 +63,10 @@ function ChatPageInner() {
                 (data.from === recipient && data.to === username) ||
                 (data.from === username && data.to === recipient)
             ) {
-                setChat((prev) => [...prev, { from: data.from, text: data.text }]);
+                setChat((prev) => [
+                    ...prev,
+                    { from: data.from, text: data.text, time: data.time || new Date().toISOString() }
+                ]);
             }
         });
 
@@ -85,7 +91,11 @@ function ChatPageInner() {
         );
         if (res.ok) {
             const history = await res.json();
-            setChat(history.map((m) => ({ from: m.from, text: m.text })));
+            setChat(history.map((m) => ({
+                from: m.from,
+                text: m.text,
+                time: m.time
+            })));
         } else {
             const data = await res.json();
             alert(data.message || "Could not load history");
@@ -103,7 +113,7 @@ function ChatPageInner() {
 
     const sendMessage = async () => {
         if (!connected || !message.trim()) return;
-        const msg = { from: username, to: recipient, text: message };
+        const msg = { from: username, to: recipient, text: message, time: new Date().toISOString() };
 
         const res = await fetch("/api/message", {
             method: "POST",
@@ -151,7 +161,6 @@ function ChatPageInner() {
                                 ))}
                         </datalist>
 
-
                         <button onClick={connect} className="connect-button">Connect</button>
                         <button onClick={() => setChat([])} className="refresh-button">Clear</button>
                         <button
@@ -181,6 +190,9 @@ function ChatPageInner() {
                         <div className="messages">
                             {chat.map((c, i) => {
                                 const label = c.from === username ? "me" : c.from;
+                                const time = c.time
+                                    ? new Date(c.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                    : "";
                                 return (
                                     <div
                                         key={i}
@@ -192,6 +204,7 @@ function ChatPageInner() {
                                             }`}
                                     >
                                         <span className="from">{label}:</span> {c.text}
+                                        {time && <span className="timestamp"> {time}</span>}
                                     </div>
                                 );
                             })}
