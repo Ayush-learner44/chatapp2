@@ -23,16 +23,20 @@
 }
 
 .home-button {
-    background: hsl(0, 0%, 95%);
-    color: hsl(220, 15%, 20%);
-    padding: 0.5rem 1rem;
-    border: 1px solid hsl(0, 0%, 80%);
+    background-color: hsl(0, 0%, 40%);
+    /* medium gray */
+    color: white;
+    border: none;
+    padding: 6px 14px;
     border-radius: 6px;
+    font-weight: 500;
     cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
 .home-button:hover {
-    background: hsl(0, 0%, 85%);
+    background-color: hsl(0, 0%, 25%);
+    /* darker gray on hover */
 }
 
 /* Inline username field in top bar */
@@ -50,10 +54,26 @@
 }
 
 .profile-label {
-    margin-left: 1rem;
-    font-weight: bold;
-    color: hsl(220, 20%, 20%);
+    font-weight: 700;
+    /* bolder text */
+    color: hsl(0, 0%, 20%);
+    /* dark gray for contrast */
+    background-color: hsl(0, 0%, 90%);
+    /* light gray background */
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.95rem;
 }
+
+
+.profile-badge {
+    background: #f0f0f0;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    color: #333;
+}
+
 
 /* Chat card should shrink on small screens */
 .chat-card {
@@ -179,6 +199,15 @@
     margin-bottom: 0.4rem;
     color: hsl(220, 20%, 15%);
 }
+
+.message.system {
+    color: #0070f3;
+    /* blue accent */
+    font-weight: bold;
+    text-align: center;
+    margin: 8px 0;
+}
+
 
 .from {
     font-weight: bold;

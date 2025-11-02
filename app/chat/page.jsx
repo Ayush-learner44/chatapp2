@@ -15,13 +15,12 @@ function ChatPageInner() {
 
     const messagesEndRef = useRef(null);
 
-
     const [username, setUsername] = useState("");
     const [recipient, setRecipient] = useState("");
     const [connected, setConnected] = useState(false);
     const [message, setMessage] = useState("");
     const [chat, setChat] = useState([]);
-
+    const [users, setUsers] = useState([]);
 
     // scroll to bottom whenever chat updates
     useEffect(() => {
@@ -30,12 +29,19 @@ function ChatPageInner() {
         }
     }, [chat]);
 
-
     // Get username from query param (?user=alice)
     useEffect(() => {
         const u = searchParams.get("user");
         if (u) setUsername(u);
     }, [searchParams]);
+
+    // Fetch registered users for dropdown
+    useEffect(() => {
+        fetch("/api/users")
+            .then(res => res.json())
+            .then(data => setUsers(data))
+            .catch(err => console.error("Failed to fetch users", err));
+    }, []);
 
     // Initialize socket once
     useEffect(() => {
@@ -118,21 +124,34 @@ function ChatPageInner() {
         <div className="chat-page">
             <div className="top-bar">
                 <button onClick={() => router.push("/")} className="home-button">
-                    🏠 Home
+                    Home
                 </button>
-                {username && <span className="profile-label">You: {username}</span>}
+                {username && (
+                    <span className="profile-badge">
+                        You — <strong>{username}</strong>
+                    </span>
+                )}
             </div>
 
             <div className="chat-center">
                 <div className="chat-card">
                     <div className="recipient-row">
                         <input
-                            type="text"
+                            list="user-list"
                             placeholder="Recipient"
                             value={recipient}
                             onChange={(e) => setRecipient(e.target.value)}
                             className="recipient-input"
                         />
+                        <datalist id="user-list">
+                            {users
+                                .filter((u) => u !== username)   // exclude yourself
+                                .map((u, i) => (
+                                    <option key={i} value={u} />
+                                ))}
+                        </datalist>
+
+
                         <button onClick={connect} className="connect-button">Connect</button>
                         <button onClick={() => setChat([])} className="refresh-button">Clear</button>
                         <button
@@ -203,7 +222,6 @@ function ChatPageInner() {
     );
 }
 
-// ✅ Wrap in Suspense so useSearchParams passes build
 export default function ChatPage() {
     return (
         <Suspense fallback={<div>Loading chat...</div>}>
