@@ -8,8 +8,10 @@ import { Server } from "socket.io";
 import { MongoClient } from "mongodb";
 
 const dev = process.env.NODE_ENV !== "production";
-const hostname = "localhost";
-const port = 3000;
+// ✅ Use Render's PORT or fallback to 3000
+const port = process.env.PORT || 3000;
+// ✅ Bind to 0.0.0.0 so it's accessible externally
+const hostname = "0.0.0.0";
 
 // MongoDB client reuse
 const uri = process.env.MONGODB_URI;
@@ -71,6 +73,7 @@ app.prepare().then(() => {
         });
     });
 
+    // ✅ Listen on process.env.PORT and 0.0.0.0
     httpServer.listen(port, hostname, () => {
         console.log(`🚀 Ready on http://${hostname}:${port}`);
     });
