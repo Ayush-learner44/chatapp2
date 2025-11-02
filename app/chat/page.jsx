@@ -4,6 +4,8 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import io from "socket.io-client";
 import "./chat.css";
+export const dynamic = "force-dynamic";
+
 
 export default function ChatPage() {
     const router = useRouter();
